@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras — Listagem</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">lista<span>.</span>compras</a>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html">Cadastro</a>
+    <a href="listagem.html" class="ativo">Listagem</a>
+  </div>
+</nav>
+
+<div class="container" style="padding-bottom: 5rem;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+    <p class="secao-titulo" style="margin-bottom:0;">Minha lista</p>
+    <button class="btn btn-outline" onclick="confirmarLimpar()" style="font-size:13px;">Limpar comprados</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <input type="text" id="busca" placeholder="Buscar item..." oninput="renderizarLista()" />
+    <select id="filtro-cat" onchange="renderizarLista()">
+      <option value="">Todas categorias</option>
+      <option>Alimentação</option>
+      <option>Bebidas</option>
+      <option>Limpeza</option>
+      <option>Higiene</option>
+      <option>Outros</option>
+    </select>
+  </div>
+
+  <!-- Contador de resultados -->
+  <p id="contador" style="font-size:13px;color:var(--texto-suave);margin-bottom:12px;"></p>
+
+  <!-- Lista de itens -->
+  <div class="lista-itens" id="lista-itens"></div>
+
+  <!-- Estado vazio -->
+  <div id="vazio" style="display:none;">
+    <div class="vazio">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <p id="vazio-msg">Nenhum item encontrado.</p>
+      <a href="cadastro.html" class="btn btn-primario" style="margin-top:12px;display:inline-flex;">Adicionar item</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Barra de total fixa -->
+<div class="total-barra">
+  <div class="total-inner">
+    <div>
+      <div class="total-label">Total estimado</div>
+      <div style="font-size:12px;color:var(--texto-suave)" id="resumo-itens">0 itens · 0 comprados</div>
+    </div>
+    <div class="total-valor" id="total-valor">R$ 0,00</div>
+  </div>
+</div>
+
+<script src="dados.js"></script>
+<script>
+  function formatarPreco(valor) {
+    return 'R$ ' + valor.toFixed(2).replace('.', ',');
+  }
+
+  function badgeCategoria(cat) {
+    return `<span class="badge-cat badge-${cat}">${cat}</span>`;
+  }
+
+  function renderizarLista() {
+    const busca = document.getElementById('busca').value.toLowerCase().trim();
+    const catFiltro = document.getElementById('filtro-cat').value;
+
+    let itens = getItens();
+
+    // Filtrar
+    let filtrados = itens.filter(item => {
+      const nomeOk = item.nome.toLowerCase().includes(busca);
+      const catOk = !catFiltro || item.categoria === catFiltro;
+      return nomeOk && catOk;
+    });
+
+    // Ordenar: não comprados primeiro
+    filtrados.sort((a, b) => Number(a.comprado) - Number(b.comprado));
+
+    // Contador
+    const contador = document.getElementById('contador');
+    if (busca || catFiltro) {
+      contador.textContent = `${filtrados.length} de ${itens.length} item${itens.length !== 1 ? 's' : ''}`;
+    } else {
+      contador.textContent = '';
+    }
+
+    // Totais
+    const totais = getTotais();
+    document.getElementById('total-valor').textContent = formatarPreco(totais.valor);
+    document.getElementById('resumo-itens').textContent = `${totais.total} item${totais.total !== 1 ? 's' : ''} · ${totais.comprados} comprado${totais.comprados !== 1 ? 's' : ''}`;
+
+    const lista = document.getElementById('lista-itens');
+    const vazio = document.getElementById('vazio');
+    const vazioMsg = document.getElementById('vazio-msg');
+
+    if (filtrados.length === 0) {
+      lista.innerHTML = '';
+      vazio.style.display = 'block';
+      vazioMsg.textContent = itens.length === 0
+        ? 'Sua lista está vazia.'
+        : 'Nenhum item encontrado para este filtro.';
+      return;
+    }
+
+    vazio.style.display = 'none';
+
+    lista.innerHTML = filtrados.map(item => {
+      const totalItem = item.preco ? formatarPreco(parseFloat(item.preco) * parseInt(item.qtd || 1)) : '';
+      const obsTexto = item.obs ? ` · ${item.obs}` : '';
+
+      return `
+        <div class="item-card ${item.comprado ? 'comprado' : ''}" id="card-${item.id}">
+          <div
+            class="checkbox ${item.comprado ? 'marcado' : ''}"
+            onclick="marcarItem(${item.id})"
+            title="${item.comprado ? 'Desmarcar' : 'Marcar como comprado'}"
+          ></div>
+          <div class="item-info">
+            <div class="item-nome">
+              ${item.nome}${badgeCategoria(item.categoria)}
+            </div>
+            <div class="item-meta">${item.qtd} ${item.unidade}${obsTexto}</div>
+          </div>
+          ${totalItem ? `<div class="item-preco">${totalItem}</div>` : ''}
+          <button class="btn-perigo" onclick="excluirItem(${item.id})" title="Remover item">✕</button>
+        </div>`;
+    }).join('');
+  }
+
+  function marcarItem(id) {
+    toggleComprado(id);
+    renderizarLista();
+  }
+
+  function excluirItem(id) {
+    removerItem(id);
+    renderizarLista();
+  }
+
+  function confirmarLimpar() {
+    const itens = getItens();
+    const comprados = itens.filter(i => i.comprado);
+    if (comprados.length === 0) {
+      alert('Nenhum item marcado como comprado.');
+      return;
+    }
+    if (confirm(`Remover ${comprados.length} item(s) comprado(s)?`)) {
+      comprados.forEach(i => removerItem(i.id));
+      renderizarLista();
+    }
+  }
+
+  renderizarLista();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras — Início</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+ 
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">lista<span>.</span>compras</a>
+    <a href="index.html" class="ativo">Início</a>
+    <a href="cadastro.html">Cadastro</a>
+    <a href="listagem.html">Listagem</a>
+  </div>
+</nav>
+ 
+<div class="container">
+ 
+  <div class="hero">
+    <h1>Suas compras,<br>organizadas.</h1>
+    <p>Adicione itens, acompanhe o total e marque o que já foi comprado — tudo em um só lugar.</p>
+    <a href="cadastro.html" class="btn btn-branco">+ Adicionar item</a>
+  </div>
+ 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total de itens</div>
+      <div class="stat-valor" id="s-total">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Comprados</div>
+      <div class="stat-valor" id="s-comp">0</div>
+    </div>
+    <div class="stat-card destaque">
+      <div class="stat-label">Valor estimado</div>
+      <div class="stat-valor" id="s-valor">R$ 0,00</div>
+    </div>
+  </div>
+ 
+  <!-- Prévia dos últimos itens adicionados -->
+  <div id="previa-wrap" style="display:none;">
+    <p style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;margin-bottom:12px;">Adicionados recentemente</p>
+    <div class="lista-itens" id="previa-lista"></div>
+    <div style="margin-top:12px;">
+      <a href="listagem.html" class="btn btn-outline">Ver lista completa →</a>
+    </div>
+  </div>
+ 
+  <div id="vazio-home" style="display:none;">
+    <div class="vazio">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <p>Sua lista está vazia.</p>
+      <a href="cadastro.html" class="btn btn-primario" style="margin-top:12px;display:inline-flex;">Começar agora</a>
+    </div>
+  </div>
+ 
+</div>
+ 
+<script src="dados.js"></script>
+<script>
+  function formatarPreco(valor) {
+    return 'R$ ' + valor.toFixed(2).replace('.', ',');
+  }
+ 
+  function badgeCategoria(cat) {
+    return `<span class="badge-cat badge-${cat}">${cat}</span>`;
+  }
+ 
+  function renderizarHome() {
+    const totais = getTotais();
+    document.getElementById('s-total').textContent = totais.total;
+    document.getElementById('s-comp').textContent = totais.comprados;
+    document.getElementById('s-valor').textContent = formatarPreco(totais.valor);
+ 
+    const itens = getItens();
+    const previaWrap = document.getElementById('previa-wrap');
+    const vazioHome = document.getElementById('vazio-home');
+ 
+    if (itens.length === 0) {
+      previaWrap.style.display = 'none';
+      vazioHome.style.display = 'block';
+      return;
+    }
+ 
+    previaWrap.style.display = 'block';
+    vazioHome.style.display = 'none';
+ 
+    // Últimos 4 itens
+    const recentes = [...itens].reverse().slice(0, 4);
+    const lista = document.getElementById('previa-lista');
+    lista.innerHTML = recentes.map(item => {
+      const precoTexto = item.preco ? formatarPreco(parseFloat(item.preco) * parseInt(item.qtd || 1)) : '';
+      return `
+        <div class="item-card ${item.comprado ? 'comprado' : ''}">
+          <div class="checkbox ${item.comprado ? 'marcado' : ''}"></div>
+          <div class="item-info">
+            <div class="item-nome">${item.nome}${badgeCategoria(item.categoria)}</div>
+            <div class="item-meta">${item.qtd} ${item.unidade}</div>
+          </div>
+          ${precoTexto ? `<div class="item-preco">${precoTexto}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+ 
+  renderizarHome();
+</script>
+ 
+</body>
+</html>

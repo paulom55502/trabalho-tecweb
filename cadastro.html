@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras — Cadastro</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">lista<span>.</span>compras</a>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html" class="ativo">Cadastro</a>
+    <a href="listagem.html">Listagem</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div id="toast-sucesso" class="sucesso-toast">
+    ✓ Item adicionado com sucesso!
+  </div>
+
+  <div class="form-card">
+    <p class="form-titulo">Novo item</p>
+
+    <!-- Nome -->
+    <div class="form-grupo">
+      <label for="f-nome">Nome do produto *</label>
+      <input type="text" id="f-nome" placeholder="Ex: Arroz integral 5kg" maxlength="80" />
+      <div class="erro-msg" id="e-nome">Informe o nome do produto.</div>
+    </div>
+
+    <!-- Quantidade + Unidade + Categoria -->
+    <div class="linha-tripla">
+      <div class="form-grupo">
+        <label for="f-nome">Categoria *</label>
+        <select id="f-categoria">
+          <option value="">Selecione...</option>
+          <option>Alimentação</option>
+          <option>Bebidas</option>
+          <option>Limpeza</option>
+          <option>Higiene</option>
+          <option>Outros</option>
+        </select>
+        <div class="erro-msg" id="e-categoria">Selecione uma categoria.</div>
+      </div>
+      <div class="form-grupo">
+        <label for="f-qtd">Qtd *</label>
+        <input type="number" id="f-qtd" placeholder="1" min="1" max="999" />
+        <div class="erro-msg" id="e-qtd">Inválido.</div>
+      </div>
+      <div class="form-grupo">
+        <label for="f-unidade">Unidade</label>
+        <select id="f-unidade">
+          <option>un</option>
+          <option>kg</option>
+          <option>g</option>
+          <option>L</option>
+          <option>ml</option>
+          <option>cx</option>
+          <option>pct</option>
+          <option>dz</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Preço -->
+    <div class="form-grupo">
+      <label for="f-preco">Preço estimado por unidade (R$)</label>
+      <input type="number" id="f-preco" placeholder="0,00" min="0" step="0.01" />
+      <div class="erro-msg" id="e-preco">Valor inválido.</div>
+    </div>
+
+    <!-- Observação -->
+    <div class="form-grupo">
+      <label for="f-obs">Observação (opcional)</label>
+      <input type="text" id="f-obs" placeholder="Ex: marca preferida, loja específica..." maxlength="120" />
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:0.5rem;">
+      <button class="btn btn-primario btn-bloco" onclick="salvar()">Adicionar à lista</button>
+      <button class="btn btn-outline" onclick="limparForm()" title="Limpar formulário">✕</button>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem;text-align:center;">
+    <a href="listagem.html" class="btn btn-outline">Ver lista completa →</a>
+  </div>
+
+</div>
+
+<script src="dados.js"></script>
+<script>
+  function mostrarErro(id, visivel) {
+    const el = document.getElementById(id);
+    const input = document.getElementById(id.replace('e-', 'f-'));
+    el.classList.toggle('visivel', visivel);
+    if (input) input.classList.toggle('invalido', visivel);
+  }
+
+  function limparErros() {
+    ['nome', 'qtd', 'preco', 'categoria'].forEach(c => mostrarErro('e-' + c, false));
+  }
+
+  function limparForm() {
+    ['f-nome', 'f-qtd', 'f-preco', 'f-obs'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-categoria').value = '';
+    document.getElementById('f-unidade').value = 'un';
+    limparErros();
+  }
+
+  function salvar() {
+    limparErros();
+
+    const nome = document.getElementById('f-nome').value.trim();
+    const qtd = parseInt(document.getElementById('f-qtd').value);
+    const preco = document.getElementById('f-preco').value.trim();
+    const categoria = document.getElementById('f-categoria').value;
+    const unidade = document.getElementById('f-unidade').value;
+    const obs = document.getElementById('f-obs').value.trim();
+
+    let valido = true;
+
+    if (!nome) { mostrarErro('e-nome', true); valido = false; }
+    if (!qtd || qtd < 1) { mostrarErro('e-qtd', true); valido = false; }
+    if (!categoria) { mostrarErro('e-categoria', true); valido = false; }
+    if (preco !== '' && (isNaN(parseFloat(preco)) || parseFloat(preco) < 0)) {
+      mostrarErro('e-preco', true); valido = false;
+    }
+
+    if (!valido) return;
+
+    adicionarItem({
+      nome,
+      qtd,
+      unidade,
+      preco: preco !== '' ? parseFloat(preco) : null,
+      categoria,
+      obs,
+    });
+
+    limparForm();
+    const toast = document.getElementById('toast-sucesso');
+    toast.classList.add('visivel');
+    setTimeout(() => toast.classList.remove('visivel'), 3000);
+
+    document.getElementById('f-nome').focus();
+  }
+
+  // Submeter com Enter
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') salvar();
+  });
+</script>
+
+</body>
+</html>
