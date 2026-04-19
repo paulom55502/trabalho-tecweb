@@ -1,5 +1,3 @@
-// dados.js — gerenciamento de estado em memória (com localStorage para persistência entre páginas)
-
 const CHAVE = 'lista_compras_itens';
 
 function getItens() {
