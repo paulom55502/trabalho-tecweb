@@ -24,7 +24,6 @@
     <button class="btn btn-outline" onclick="confirmarLimpar()" style="font-size:13px;">Limpar comprados</button>
   </div>
 
-  <!-- Filtros -->
   <div class="filtros">
     <input type="text" id="busca" placeholder="Buscar item..." oninput="renderizarLista()" />
     <select id="filtro-cat" onchange="renderizarLista()">
@@ -37,13 +36,10 @@
     </select>
   </div>
 
-  <!-- Contador de resultados -->
   <p id="contador" style="font-size:13px;color:var(--texto-suave);margin-bottom:12px;"></p>
 
-  <!-- Lista de itens -->
   <div class="lista-itens" id="lista-itens"></div>
 
-  <!-- Estado vazio -->
   <div id="vazio" style="display:none;">
     <div class="vazio">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -57,7 +53,6 @@
 
 </div>
 
-<!-- Barra de total fixa -->
 <div class="total-barra">
   <div class="total-inner">
     <div>
@@ -84,17 +79,14 @@
 
     let itens = getItens();
 
-    // Filtrar
     let filtrados = itens.filter(item => {
       const nomeOk = item.nome.toLowerCase().includes(busca);
       const catOk = !catFiltro || item.categoria === catFiltro;
       return nomeOk && catOk;
     });
 
-    // Ordenar: não comprados primeiro
     filtrados.sort((a, b) => Number(a.comprado) - Number(b.comprado));
 
-    // Contador
     const contador = document.getElementById('contador');
     if (busca || catFiltro) {
       contador.textContent = `${filtrados.length} de ${itens.length} item${itens.length !== 1 ? 's' : ''}`;
@@ -102,7 +94,6 @@
       contador.textContent = '';
     }
 
-    // Totais
     const totais = getTotais();
     document.getElementById('total-valor').textContent = formatarPreco(totais.valor);
     document.getElementById('resumo-itens').textContent = `${totais.total} item${totais.total !== 1 ? 's' : ''} · ${totais.comprados} comprado${totais.comprados !== 1 ? 's' : ''}`;
