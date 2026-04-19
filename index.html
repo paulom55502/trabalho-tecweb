@@ -40,7 +40,6 @@
     </div>
   </div>
  
-  <!-- Prévia dos últimos itens adicionados -->
   <div id="previa-wrap" style="display:none;">
     <p style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;margin-bottom:12px;">Adicionados recentemente</p>
     <div class="lista-itens" id="previa-lista"></div>
@@ -91,7 +90,6 @@
     previaWrap.style.display = 'block';
     vazioHome.style.display = 'none';
  
-    // Últimos 4 itens
     const recentes = [...itens].reverse().slice(0, 4);
     const lista = document.getElementById('previa-lista');
     lista.innerHTML = recentes.map(item => {
