@@ -26,14 +26,12 @@
   <div class="form-card">
     <p class="form-titulo">Novo item</p>
 
-    <!-- Nome -->
     <div class="form-grupo">
       <label for="f-nome">Nome do produto *</label>
       <input type="text" id="f-nome" placeholder="Ex: Arroz integral 5kg" maxlength="80" />
       <div class="erro-msg" id="e-nome">Informe o nome do produto.</div>
     </div>
 
-    <!-- Quantidade + Unidade + Categoria -->
     <div class="linha-tripla">
       <div class="form-grupo">
         <label for="f-nome">Categoria *</label>
@@ -67,14 +65,12 @@
       </div>
     </div>
 
-    <!-- Preço -->
     <div class="form-grupo">
       <label for="f-preco">Preço estimado por unidade (R$)</label>
       <input type="number" id="f-preco" placeholder="0,00" min="0" step="0.01" />
       <div class="erro-msg" id="e-preco">Valor inválido.</div>
     </div>
 
-    <!-- Observação -->
     <div class="form-grupo">
       <label for="f-obs">Observação (opcional)</label>
       <input type="text" id="f-obs" placeholder="Ex: marca preferida, loja específica..." maxlength="120" />
@@ -150,7 +146,6 @@
     document.getElementById('f-nome').focus();
   }
 
-  // Submeter com Enter
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') salvar();
   });
