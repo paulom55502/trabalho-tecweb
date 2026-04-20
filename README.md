@@ -13,5 +13,5 @@ docker compose exec app npm install
 
 docker compose exec app npm run dev
 
-5-Acessar no navegador
+# 5-Acessar no navegador
 http://localhost:5173
